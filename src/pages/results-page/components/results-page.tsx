@@ -1,14 +1,15 @@
-import { Typography, Box } from '@mui/material';
+import { useContext } from 'react';
+import { Typography, Box, Button } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
-import { Answer } from '../../../services/quiz';
 
 import './result-page.css';
+import { Link } from 'react-router-dom';
+import { AnswerContext } from '../../../contexts';
+import { PagePaths } from '../../../routing';
 
-interface ResultsPageProps {
-  answers: Answer[];
-}
+export const ResultsPage = () => {
+  const { answers } = useContext(AnswerContext);
 
-export const ResultsPage = ({ answers }: ResultsPageProps) => {
   return (
     <Box component="main" className="results-page">
       <Typography variant="h2" className="results">
@@ -31,6 +32,15 @@ export const ResultsPage = ({ answers }: ResultsPageProps) => {
           </Typography>
         </div>
       ))}
+      <Button
+        variant="contained"
+        color="primary"
+        component={Link}
+        fullWidth
+        to={PagePaths.QuizPage}
+      >
+        play again?
+      </Button>
     </Box>
   );
 };

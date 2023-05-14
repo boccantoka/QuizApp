@@ -1,44 +1,16 @@
 import he from 'he';
-
-export type Question = {
-  category: string;
-  correct_answer: string;
-  incorrect_answers: string[];
-  difficulty: string;
-  type: string;
-  question: string;
-};
-
-export type Answer = {
-  isCorrect: boolean;
-  question: string;
-};
-
-export enum QuestionType {
-  Multiple = 'multiple',
-  Boolean = 'boolean',
-}
-
-export enum QuestionDifficulty {
-  Easy = 'easy',
-  Medium = 'medium',
-  Hard = 'hard',
-}
-
-const QUIZ_API_ENDPOINT = 'https://opentdb.com';
-export interface QuizApiQuestionEndpointResponse {
-  results: Question[];
-  response_code: number;
-}
-
-export interface QuizApiTokenEndpointResponse {
-  response_code: number;
-  token: string;
-}
+import {
+  Question,
+  QuestionDifficulty,
+  QuestionType,
+  QuizApiQuestionEndpointResponse,
+  QuizApiTokenEndpointResponse,
+} from './models';
+import { QUIZ_API_ENDPOINT, QUIZ_API_TOKEN_ENDPOINT } from './quiz.constants';
 
 // In a real world application session token should be stored as a HTTP only cookie
 export const setNewQuizApiSessionToken = async (): Promise<void> => {
-  const apiEndpoint = `${QUIZ_API_ENDPOINT}/api_token.php?command=request`;
+  const apiEndpoint = `${QUIZ_API_TOKEN_ENDPOINT}?command=request`;
 
   const response = (await (
     await fetch(apiEndpoint)
@@ -61,7 +33,7 @@ export const resetSessionToken = async (): Promise<void> => {
     await setNewQuizApiSessionToken();
   }
 
-  const apiEndpoint = `${QUIZ_API_ENDPOINT}/api_token.php?command=reset&token=${sessionToken}`;
+  const apiEndpoint = `${QUIZ_API_TOKEN_ENDPOINT}?command=reset&token=${sessionToken}`;
   const response = (await (
     await fetch(apiEndpoint)
   ).json()) as QuizApiTokenEndpointResponse;

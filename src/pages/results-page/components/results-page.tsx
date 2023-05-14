@@ -18,7 +18,7 @@ export const ResultsPage = () => {
 
   return (
     <Box component="main" className="results-page">
-      <Typography variant="h2" className="results">
+      <Typography variant="h2" className="score">
         {getScorePointText(answers)}
       </Typography>
       {answers.map((answer) => (

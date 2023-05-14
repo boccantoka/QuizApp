@@ -1,9 +1,11 @@
 import { Link, useRouteError } from 'react-router-dom';
 
+import { Button, Typography } from '@mui/material';
 import { PagePaths } from '../../../routing';
 
+import './error-page.css';
+
 const getErrorMsg = (error: unknown, message?: string) => {
-  console.log('asd', message);
   if (message) {
     return message;
   }
@@ -24,10 +26,21 @@ export const ErrorPage = ({ message }: ErrorPageProps): JSX.Element => {
   const error = useRouteError();
 
   return (
-    <main>
-      <h1>Error occurred</h1>
-      <p>{getErrorMsg(error, message)}</p>
-      <Link to={PagePaths.HomePage}>Go to home page</Link>
+    <main className="error-page">
+      <Typography variant="h3" component="h1" gutterBottom>
+        Error occurred
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        {getErrorMsg(error, message)}
+      </Typography>
+      <Button
+        variant="contained"
+        component={Link}
+        color="primary"
+        to={PagePaths.HomePage}
+      >
+        Go to home page
+      </Button>
     </main>
   );
 };

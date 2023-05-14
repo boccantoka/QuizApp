@@ -35,7 +35,11 @@ export const QuizPage = () => {
 
         setQuestions(fetchedQuestions);
       } catch (error) {
-        setErrorMsg('Could not fetch questions');
+        if (error instanceof Error) {
+          setErrorMsg(error.message);
+        } else {
+          setErrorMsg('Error occurred during the fetching of questions');
+        }
       }
     };
 

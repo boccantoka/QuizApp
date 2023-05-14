@@ -1,0 +1,25 @@
+.results-page .score {
+  text-align: center;
+}
+
+.results-page .results {
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.results-page-answer-row {
+  display: flex;
+}
+
+.results-page-answer-row:not(:last-child) {
+  margin-bottom: 26px;
+}
+
+.results-page-answer-row:first-child {
+  margin-top: 26px;
+}
+
+.results-page-answer-row-answer,
+.results-page-answer-row-icon {
+  align-self: center;
+}

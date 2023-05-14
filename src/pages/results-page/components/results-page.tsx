@@ -6,6 +6,12 @@ import './result-page.css';
 import { Link } from 'react-router-dom';
 import { AnswerContext } from '../../../contexts';
 import { PagePaths } from '../../../routing';
+import { Answer } from '../../../services/quiz';
+
+const getScorePointText = (answers: Answer[]): string => {
+  const correctAnswers = answers.filter((answer) => answer.isCorrect).length;
+  return `${correctAnswers} / ${answers.length} Nice job 🏆`;
+};
 
 export const ResultsPage = () => {
   const { answers } = useContext(AnswerContext);
@@ -13,9 +19,7 @@ export const ResultsPage = () => {
   return (
     <Box component="main" className="results-page">
       <Typography variant="h2" className="results">
-        {`${answers.filter((answer) => answer.isCorrect).length} / ${
-          answers.length
-        }`}
+        {getScorePointText(answers)}
       </Typography>
       {answers.map((answer) => (
         <div key={answer.question} className="results-page-answer-row">

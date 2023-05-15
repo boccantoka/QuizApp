@@ -1,16 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
-import { useLoaderData, useNavigate, useNavigation } from 'react-router-dom';
-import { CircularProgress, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Typography } from '@mui/material';
 import { QuizCard } from '../quiz-card/quiz-card';
 import { quizApiConfig } from '../../../../configs/quiz-config';
 
-import {
-  Answer,
-  Question,
-  QuestionDifficulty,
-  QuestionType,
-  fetchQuestions,
-} from '../../../../services/quiz';
+import { Question, getQuestions } from '../../../../services/quiz';
 import { AnswerContext } from '../../../../contexts';
 import { PagePaths } from '../../../../routing';
 
@@ -25,9 +19,9 @@ export const QuizPage = () => {
   const { questionNumber, questionDifficulty, questionType } = quizApiConfig;
 
   useEffect(() => {
-    const getQuestions = async () => {
+    const fetchQuestions = async () => {
       try {
-        const fetchedQuestions = await fetchQuestions(
+        const fetchedQuestions = await getQuestions(
           questionNumber,
           questionDifficulty,
           questionType
@@ -46,7 +40,7 @@ export const QuizPage = () => {
     if (answers.length) {
       setAnswers([]);
     }
-    getQuestions();
+    fetchQuestions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

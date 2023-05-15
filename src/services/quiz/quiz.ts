@@ -4,6 +4,7 @@ import {
   QuestionDifficulty,
   QuestionType,
   QuizApiQuestionEndpointResponse,
+  QuizApiStatusCodes,
   QuizApiTokenEndpointResponse,
 } from './models';
 import { QUIZ_API_ENDPOINT, QUIZ_API_TOKEN_ENDPOINT } from './quiz.constants';
@@ -43,22 +44,33 @@ export const resetSessionToken = async (): Promise<void> => {
   }
 };
 
-const handleFetchQuestionsError = async (errorCode: number): Promise<void> => {
+const handleFetchQuestionsError = (errorCode: number): void => {
   switch (errorCode) {
-    case 1:
+    case QuizApiStatusCodes.NoResults:
       throw new Error(
         "Could not return results. The API doesn't have enough questions for your query."
       );
-    case 2:
+    case QuizApiStatusCodes.InvalidParameter:
       throw new Error("Arguments passed in aren't valid.");
-    case 3:
-      await setNewQuizApiSessionToken();
-      break;
-    case 4:
-      await resetSessionToken();
-      break;
+    case QuizApiStatusCodes.TokenNotFound:
+      throw new Error('Session Token does not exist.');
+    case QuizApiStatusCodes.TokenEmpty:
+      throw new Error(
+        'Session Token has returned all possible questions for the specified query. Resetting the Token is necessary.'
+      );
     default:
       throw new Error('Unknown error occurred.');
+  }
+};
+
+const handleSessionTokenError = async (errorCode: number): Promise<void> => {
+  if (errorCode === QuizApiStatusCodes.TokenNotFound) {
+    await setNewQuizApiSessionToken();
+    return;
+  }
+
+  if (errorCode === QuizApiStatusCodes.TokenEmpty) {
+    await resetSessionToken();
   }
 };
 
@@ -66,12 +78,11 @@ export const fetchQuestions = async (
   amount: number,
   difficulty: QuestionDifficulty,
   type: QuestionType
-): Promise<Question[]> => {
+): Promise<QuizApiQuestionEndpointResponse> => {
   if (!getQuizApiSessionToken()) {
     await setNewQuizApiSessionToken();
   }
 
-  // todo util
   let apiEndpoint = `${QUIZ_API_ENDPOINT}/api.php?amount=${amount}&difficulty=${difficulty}&type=${type}`;
 
   const sessionToken = getQuizApiSessionToken();
@@ -80,17 +91,30 @@ export const fetchQuestions = async (
     apiEndpoint += `&token=${sessionToken}`;
   }
 
-  const response = (await (
+  return (await (
     await fetch(apiEndpoint)
   ).json()) as QuizApiQuestionEndpointResponse;
+};
 
-  if (response.response_code !== 0) {
-    await handleFetchQuestionsError(response.response_code);
-    // todo add comment
-    return fetchQuestions(amount, difficulty, type);
+export const getQuestions = async (
+  amount: number,
+  difficulty: QuestionDifficulty,
+  type: QuestionType
+): Promise<Question[]> => {
+  let response = await fetchQuestions(amount, difficulty, type);
+
+  if (
+    response.response_code === QuizApiStatusCodes.TokenEmpty ||
+    response.response_code === QuizApiStatusCodes.TokenNotFound
+  ) {
+    await handleSessionTokenError(response.response_code);
+    response = await fetchQuestions(amount, difficulty, type);
   }
 
-  // todo write util
+  if (response.response_code !== QuizApiStatusCodes.Success) {
+    handleFetchQuestionsError(response.response_code);
+  }
+
   return response.results.map((question) => ({
     ...question,
     question: he.decode(question.question),
